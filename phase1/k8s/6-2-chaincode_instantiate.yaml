@@ -1,0 +1,38 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: cadanac-v0-1
+  name: chaincodeinstantiate
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      name: chaincodeinstantiate
+    spec:
+      restartPolicy: "Never"
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+      containers:
+      - name: chaincodeinstantiate
+        image: hyperledger/fabric-tools:1.4.4
+        imagePullPolicy: Always
+        command: ["sh", "-c", "peer chaincode instantiate -o blockchain-orderer:31010 -C channelpersonlocation -n personlocation -v ${CHAINCODE_VERSION} -c '{\"Args\":[\"Mach\",\"50\"]}' && peer chaincode instantiate -o blockchain-orderer:31010 -C channelhealthfinance -n healthfinance -v ${CHAINCODE_VERSION} -c '{\"Args\":[\"Mach\",\"50\"]}' && peer chaincode instantiate -o blockchain-orderer:31010 -C channelpersonhealth -n personhealth -v ${CHAINCODE_VERSION} -c '{\"Args\":[\"Mach\",\"50\"]}'"]
+        env:
+        - name: CHAINCODE_VERSION
+          value: "0.1"
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/government1.example.com/users/Admin@government1.example.com/msp
+        - name: CORE_PEER_LOCALMSPID
+          value: Government1MSP
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-gov1peer1:31210
+        - name: GODEBUG
+          value: "netdns=go"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume

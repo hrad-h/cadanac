@@ -1,0 +1,33 @@
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  namespace: cadanac-v0-1
+  name: cadanac-docker-pv
+  labels:
+    type: local
+    name: cadanac-dockervolume
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/tmp-cadanac-docker-pv"
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  namespace: cadanac-v0-1
+  name: cadanac-docker-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: ""
+  selector:
+    matchLabels:
+      name: cadanac-dockervolume

@@ -1,0 +1,210 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: cadanac-v0-1
+  name: joinchannel
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      name: joinchannel
+    spec:
+      restartPolicy: "Never"
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+      containers:
+      - name: cpc1peer1
+        image: hyperledger/fabric-peer:1.4.4
+        imagePullPolicy: Always
+        command: ["sh", "-c", "peer channel fetch oldest channelpersonlocation.pb -o ${ORDERER_URL} -c channelpersonlocation && peer channel join -b channelpersonlocation.pb"]
+        env:
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-cpc1peer1:30510
+        - name: CORE_PEER_LOCALMSPID
+          value: CellPhoneCompany1MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/cellphonecompany1.example.com/users/Admin@cellphonecompany1.example.com/msp/
+        - name: FABRIC_LOGGING_SPECL
+          value: debug
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric
+        - name: GODEBUG
+          value: "netdns=go"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+      - name: cpc2peer1
+        image: hyperledger/fabric-peer:1.4.4
+        imagePullPolicy: Always
+        command: ["sh", "-c", "peer channel fetch oldest channelpersonlocation.pb -o ${ORDERER_URL} -c channelpersonlocation && peer channel join -b channelpersonlocation.pb"]
+        env:
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-cpc2peer1:30610
+        - name: CORE_PEER_LOCALMSPID
+          value: CellPhoneCompany2MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/cellphonecompany2.example.com/users/Admin@cellphonecompany2.example.com/msp/
+        - name: FABRIC_LOGGING_SPECL
+          value: debug
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric
+        - name: GODEBUG
+          value: "netdns=go"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+      - name: cpc3peer1
+        image: hyperledger/fabric-peer:1.4.4
+        imagePullPolicy: Always
+        command: ["sh", "-c", "peer channel fetch oldest channelpersonlocation.pb -o ${ORDERER_URL} -c channelpersonlocation && peer channel join -b channelpersonlocation.pb"]
+        env:
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-cpc3peer1:30710
+        - name: CORE_PEER_LOCALMSPID
+          value: CellPhoneCompany3MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/cellphonecompany3.example.com/users/Admin@cellphonecompany3.example.com/msp/
+        - name: FABRIC_LOGGING_SPECL
+          value: debug
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric
+        - name: GODEBUG
+          value: "netdns=go"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+      - name: hosp1peer1
+        image: hyperledger/fabric-peer:1.4.4
+        imagePullPolicy: Always
+        command: ["sh", "-c", "peer channel fetch oldest channelpersonhealth.pb -o ${ORDERER_URL} -c channelpersonhealth && peer channel join -b channelpersonhealth.pb && peer channel fetch oldest channelhealthfinance.pb -o ${ORDERER_URL} -c channelhealthfinance && peer channel join -b channelhealthfinance.pb"]
+        env:
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-hosp1peer1:30810
+        - name: CORE_PEER_LOCALMSPID
+          value: Hospital1MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/hospital1.example.com/users/Admin@hospital1.example.com/msp/
+        - name: FABRIC_LOGGING_SPECL
+          value: debug
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric
+        - name: GODEBUG
+          value: "netdns=go"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+      - name: hosp2peer1
+        image: hyperledger/fabric-peer:1.4.4
+        imagePullPolicy: Always
+        command: ["sh", "-c", "peer channel fetch oldest channelpersonhealth.pb -o ${ORDERER_URL} -c channelpersonhealth && peer channel join -b channelpersonhealth.pb && peer channel fetch oldest channelhealthfinance.pb -o ${ORDERER_URL} -c channelhealthfinance && peer channel join -b channelhealthfinance.pb"]
+        env:
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-hosp2peer1:30910
+        - name: CORE_PEER_LOCALMSPID
+          value: Hospital2MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/hospital2.example.com/users/Admin@hospital2.example.com/msp/
+        - name: FABRIC_LOGGING_SPECL
+          value: debug
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric
+        - name: GODEBUG
+          value: "netdns=go"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+      - name: ngo1peer1
+        image: hyperledger/fabric-peer:1.4.4
+        imagePullPolicy: Always
+        command: ["sh", "-c", "peer channel fetch oldest channelhealthfinance.pb -o ${ORDERER_URL} -c channelhealthfinance && peer channel join -b channelhealthfinance.pb"]
+        env:
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-ngo1peer1:31310
+        - name: CORE_PEER_LOCALMSPID
+          value: NGO1MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/ngo1.example.com/users/Admin@ngo1.example.com/msp/
+        - name: FABRIC_LOGGING_SPECL
+          value: debug
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric
+        - name: GODEBUG
+          value: "netdns=go"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+      - name: ngo2peer1
+        image: hyperledger/fabric-peer:1.4.4
+        imagePullPolicy: Always
+        command: ["sh", "-c", "peer channel fetch oldest channelhealthfinance.pb -o ${ORDERER_URL} -c channelhealthfinance && peer channel join -b channelhealthfinance.pb"]
+        env:
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-ngo2peer1:31110
+        - name: CORE_PEER_LOCALMSPID
+          value: NGO2MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/ngo2.example.com/users/Admin@ngo2.example.com/msp/
+        - name: FABRIC_LOGGING_SPECL
+          value: debug
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric
+        - name: GODEBUG
+          value: "netdns=go"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+      - name: gov1peer1
+        image: hyperledger/fabric-peer:1.4.4
+        imagePullPolicy: Always
+        command: ["sh", "-c", "peer channel fetch oldest channelpersonlocation.pb -o ${ORDERER_URL} -c channelpersonlocation && peer channel join -b channelpersonlocation.pb && peer channel fetch oldest channelpersonhealth.pb -o ${ORDERER_URL} -c channelpersonhealth && peer channel join -b channelpersonhealth.pb && peer channel fetch oldest channelhealthfinance.pb -o ${ORDERER_URL} -c channelhealthfinance && peer channel join -b channelhealthfinance.pb"]
+        env:
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-gov1peer1:31210
+        - name: CORE_PEER_LOCALMSPID
+          value: Government1MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/government1.example.com/users/Admin@government1.example.com/msp/
+        - name: FABRIC_LOGGING_SPECL
+          value: debug
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric
+        - name: GODEBUG
+          value: "netdns=go"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume

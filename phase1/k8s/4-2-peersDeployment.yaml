@@ -1,0 +1,837 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cadanac-v0-1
+  name: blockchain-orderer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: orderer
+  template:
+    metadata:
+      labels:
+        name: orderer
+    spec:
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+
+      containers:
+      - name: orderer
+        image: hyperledger/fabric-orderer:1.4.4
+        command: ["sh", "-c", "sleep 5 && while [ ! -f /shared/status_configtxgen_complete ]; do echo Waiting for configtxgen; sleep 1; done; orderer"]
+        env:
+        - name: ORDERER_CFG_PATH
+          value: /shared/
+        - name: ORDERER_GENERAL_LEDGERTYPE
+          value: file
+        - name: ORDERER_FILELEDGER_LOCATION
+          value: /shared/ledger/orderer
+        - name: ORDERER_GENERAL_BATCHTIMEOUT
+          value: 1s
+        - name: ORDERER_GENERAL_BATCHSIZE_MAXMESSAGECOUNT
+          value: "10"
+        - name: ORDERER_GENERAL_MAXWINDOWSIZE
+          value: "1000"
+        - name: ORDERER_GENERAL_ORDERERTYPE
+          value: solo
+        - name: ORDERER_GENERAL_LISTENADDRESS
+          value: 0.0.0.0
+        - name: ORDERER_GENERAL_LISTENPORT
+          value: "31010"
+        - name: ORDERER_GENERAL_LOGLEVEL
+          value: debug
+        - name: ORDERER_GENERAL_LOCALMSPDIR
+          value: /shared/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp
+        - name: ORDERER_GENERAL_LOCALMSPID
+          value: OrdererMSP
+        - name: ORDERER_GENERAL_GENESISMETHOD
+          value: file
+        - name: ORDERER_GENERAL_GENESISFILE
+          value: /shared/genesis.block
+        - name: ORDERER_GENERAL_GENESISPROFILE
+          value: initial
+        - name: ORDERER_GENERAL_TLS_ENABLED
+          value: "false"
+        - name: GODEBUG
+          value: "netdns=go"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cadanac-v0-1
+  name: blockchain-ca
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ca
+  template:
+    metadata:
+      labels:
+        name: ca
+    spec:
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+
+      containers:
+      - name: ca
+        image: hyperledger/fabric-ca:1.4.4
+        command: ["sh", "-c", "sleep 1 && while [ ! -f /shared/status_configtxgen_complete ]; do echo Waiting for configtxgen; sleep 1; done; fabric-ca-server start -b admin:adminpw -d"]
+        env:
+        - name: FABRIC_CA_SERVER_CA_NAME
+          value: "CA1"
+        - name: FABRIC_CA_SERVER_CA_CERTFILE
+          value: /shared/crypto-config/peerOrganizations/government1.example.com/ca/ca.government1.example.com-cert.pem
+        - name: FABRIC_CA_SERVER_CA_KEYFILE
+          value: /shared/crypto-config/peerOrganizations/government1.example.com/ca/key.pem
+        - name: FABRIC_CA_SERVER_DEBUG
+          value: "true"
+        - name: FABRIC_CA_SERVER_TLS_ENABLED
+          value: "false"
+        - name: FABRIC_CA_SERVER_TLS_CERTFILE
+          value: /certs/ca0a-cert.pem
+        - name: FABRIC_CA_SERVER_TLS_KEYFILE
+          value: /certs/ca0a-key.pem
+        - name: GODEBUG
+          value: "netdns=go"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cadanac-v0-1
+  name: blockchain-cpc1peer1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: cpc1peer1
+  template:
+    metadata:
+      labels:
+        name: cpc1peer1
+    spec:
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+
+      containers:
+      - name: cpc1peer1
+        image: hyperledger/fabric-peer:1.4.4
+        command: ["sh", "-c", "sleep 1 && while [ ! -f /shared/status_configtxgen_complete ]; do echo Waiting for configtxgen; sleep 1; done;  peer node start"]
+        env:
+        - name: CORE_PEER_ADDRESSAUTODETECT
+          value: "true"
+        - name: CORE_PEER_ID
+          value: cpc1peer1
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-cpc1peer1:30510
+        - name: CORE_PEER_LISTENADDRESS
+          value: 0.0.0.0:30510
+        - name: CORE_PEER_EVENTS_ADDRESS
+          value: 0.0.0.0:30511
+        - name: CORE_PEER_GOSSIP_BOOTSTRAP
+          value: blockchain-cpc1peer1:30510
+        - name: CORE_PEER_GOSSIP_ORGLEADER
+          value: "false"
+        - name: CORE_PEER_GOSSIP_SKIPHANDSHAKE
+          value: "true"
+        - name: CORE_PEER_COMMITTER_ENABLED
+          value: "true"
+        - name: CORE_PEER_PROFILE_ENABLED
+          value: "true"
+        - name: CORE_VM_ENDPOINT
+          value: tcp://cadanac-docker:2375
+        - name: CORE_PEER_LOCALMSPID
+          value: CellPhoneCompany1MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/cellphonecompany1.example.com/peers/peer0.cellphonecompany1.example.com/msp/
+        - name: FABRIC_LOGGING_SPEC
+          value: debug
+        - name: CORE_LOGGING_PEER
+          value: debug
+        - name: CORE_LOGGING_CAUTHDSL
+          value: debug
+        - name: CORE_LOGGING_GOSSIP
+          value: debug
+        - name: CORE_LOGGING_LEDGER
+          value: debug
+        - name: CORE_LOGGING_MSP
+          value: debug
+        - name: CORE_LOGGING_POLICIES
+          value: debug
+        - name: CORE_LOGGING_GRPC
+          value: debug
+        - name: CORE_PEER_TLS_ENABLED
+          value: "false"
+        - name: CORE_LEDGER_STATE_STATEDATABASE
+          value: goleveldb
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric/
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: GODEBUG
+          value: "netdns=go"
+        - name: CORE_VM_DOCKER_ATTACHSTDOUT
+          value: "true"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+        - mountPath: /host/var/run/docker.sock
+          name: dockersocket
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cadanac-v0-1
+  name: blockchain-cpc2peer1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: cpc2peer1
+  template:
+    metadata:
+      labels:
+        name: cpc2peer1
+    spec:
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+
+      containers:
+      - name: cpc2peer1
+        image: hyperledger/fabric-peer:1.4.4
+        command: ["sh", "-c", "sleep 1 && while [ ! -f /shared/status_configtxgen_complete ]; do echo Waiting for configtxgen; sleep 1; done;  peer node start"]
+        env:
+        - name: CORE_PEER_ADDRESSAUTODETECT
+          value: "true"
+        - name: CORE_PEER_ID
+          value: cpc2peer1
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-cpc2peer1:30610
+        - name: CORE_PEER_LISTENADDRESS
+          value: 0.0.0.0:30610
+        - name: CORE_PEER_EVENTS_ADDRESS
+          value: 0.0.0.0:30611
+        - name: CORE_PEER_GOSSIP_BOOTSTRAP
+          value: blockchain-cpc2peer1:30610
+        - name: CORE_PEER_GOSSIP_ORGLEADER
+          value: "false"
+        - name: CORE_PEER_GOSSIP_SKIPHANDSHAKE
+          value: "true"
+        - name: CORE_PEER_COMMITTER_ENABLED
+          value: "true"
+        - name: CORE_PEER_PROFILE_ENABLED
+          value: "true"
+        - name: CORE_VM_ENDPOINT
+          value: tcp://cadanac-docker:2375
+        - name: CORE_PEER_LOCALMSPID
+          value: CellPhoneCompany2MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/cellphonecompany2.example.com/peers/peer0.cellphonecompany2.example.com/msp/
+        - name: FABRIC_LOGGING_SPEC
+          value: debug
+        - name: CORE_LOGGING_PEER
+          value: debug
+        - name: CORE_LOGGING_CAUTHDSL
+          value: debug
+        - name: CORE_LOGGING_GOSSIP
+          value: debug
+        - name: CORE_LOGGING_LEDGER
+          value: debug
+        - name: CORE_LOGGING_MSP
+          value: debug
+        - name: CORE_LOGGING_POLICIES
+          value: debug
+        - name: CORE_LOGGING_GRPC
+          value: debug
+        - name: CORE_PEER_TLS_ENABLED
+          value: "false"
+        - name: CORE_LEDGER_STATE_STATEDATABASE
+          value: goleveldb
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric/
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: GODEBUG
+          value: "netdns=go"
+        - name: CORE_VM_DOCKER_ATTACHSTDOUT
+          value: "true"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+        - mountPath: /host/var/run/docker.sock
+          name: dockersocket
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cadanac-v0-1
+  name: blockchain-cpc3peer1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: cpc3peer1
+  template:
+    metadata:
+      labels:
+        name: cpc3peer1
+    spec:
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+
+      containers:
+      - name: cpc3peer1
+        image: hyperledger/fabric-peer:1.4.4
+        command: ["sh", "-c", "sleep 1 && while [ ! -f /shared/status_configtxgen_complete ]; do echo Waiting for configtxgen; sleep 1; done;  peer node start"]
+        env:
+        - name: CORE_PEER_ADDRESSAUTODETECT
+          value: "true"
+        - name: CORE_PEER_ID
+          value: cpc3peer1
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-cpc3peer1:30710
+        - name: CORE_PEER_LISTENADDRESS
+          value: 0.0.0.0:30710
+        - name: CORE_PEER_EVENTS_ADDRESS
+          value: 0.0.0.0:30711
+        - name: CORE_PEER_GOSSIP_BOOTSTRAP
+          value: blockchain-cpc3peer1:30710
+        - name: CORE_PEER_GOSSIP_ORGLEADER
+          value: "false"
+        - name: CORE_PEER_GOSSIP_SKIPHANDSHAKE
+          value: "true"
+        - name: CORE_PEER_COMMITTER_ENABLED
+          value: "true"
+        - name: CORE_PEER_PROFILE_ENABLED
+          value: "true"
+        - name: CORE_VM_ENDPOINT
+          value: tcp://cadanac-docker:2375
+        - name: CORE_PEER_LOCALMSPID
+          value: CellPhoneCompany3MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/cellphonecompany3.example.com/peers/peer0.cellphonecompany3.example.com/msp/
+        - name: FABRIC_LOGGING_SPEC
+          value: debug
+        - name: CORE_LOGGING_PEER
+          value: debug
+        - name: CORE_LOGGING_CAUTHDSL
+          value: debug
+        - name: CORE_LOGGING_GOSSIP
+          value: debug
+        - name: CORE_LOGGING_LEDGER
+          value: debug
+        - name: CORE_LOGGING_MSP
+          value: debug
+        - name: CORE_LOGGING_POLICIES
+          value: debug
+        - name: CORE_LOGGING_GRPC
+          value: debug
+        - name: CORE_PEER_TLS_ENABLED
+          value: "false"
+        - name: CORE_LEDGER_STATE_STATEDATABASE
+          value: goleveldb
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric/
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: GODEBUG
+          value: "netdns=go"
+        - name: CORE_VM_DOCKER_ATTACHSTDOUT
+          value: "true"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+        - mountPath: /host/var/run/docker.sock
+          name: dockersocket
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cadanac-v0-1
+  name: blockchain-hosp1peer1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: hosp1peer1
+  template:
+    metadata:
+      labels:
+        name: hosp1peer1
+    spec:
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+
+      containers:
+      - name: hosp1peer1
+        image: hyperledger/fabric-peer:1.4.4
+        command: ["sh", "-c", "sleep 1 && while [ ! -f /shared/status_configtxgen_complete ]; do echo Waiting for configtxgen; sleep 1; done;  peer node start"]
+        env:
+        - name: CORE_PEER_ADDRESSAUTODETECT
+          value: "true"
+        - name: CORE_PEER_ID
+          value: hosp1peer1
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-hosp1peer1:30810
+        - name: CORE_PEER_LISTENADDRESS
+          value: 0.0.0.0:30810
+        - name: CORE_PEER_EVENTS_ADDRESS
+          value: 0.0.0.0:30811
+        - name: CORE_PEER_GOSSIP_BOOTSTRAP
+          value: blockchain-hosp1peer1:30810
+        - name: CORE_PEER_GOSSIP_ORGLEADER
+          value: "false"
+        - name: CORE_PEER_GOSSIP_SKIPHANDSHAKE
+          value: "true"
+        - name: CORE_PEER_COMMITTER_ENABLED
+          value: "true"
+        - name: CORE_PEER_PROFILE_ENABLED
+          value: "true"
+        - name: CORE_VM_ENDPOINT
+          value: tcp://cadanac-docker:2375
+        - name: CORE_PEER_LOCALMSPID
+          value: Hospital1MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/hospital1.example.com/peers/peer0.hospital1.example.com/msp/
+        - name: FABRIC_LOGGING_SPEC
+          value: debug
+        - name: CORE_LOGGING_PEER
+          value: debug
+        - name: CORE_LOGGING_CAUTHDSL
+          value: debug
+        - name: CORE_LOGGING_GOSSIP
+          value: debug
+        - name: CORE_LOGGING_LEDGER
+          value: debug
+        - name: CORE_LOGGING_MSP
+          value: debug
+        - name: CORE_LOGGING_POLICIES
+          value: debug
+        - name: CORE_LOGGING_GRPC
+          value: debug
+        - name: CORE_PEER_TLS_ENABLED
+          value: "false"
+        - name: CORE_LEDGER_STATE_STATEDATABASE
+          value: goleveldb
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric/
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: GODEBUG
+          value: "netdns=go"
+        - name: CORE_VM_DOCKER_ATTACHSTDOUT
+          value: "true"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+        - mountPath: /host/var/run/docker.sock
+          name: dockersocket
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cadanac-v0-1
+  name: blockchain-hosp2peer1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: hosp2peer1
+  template:
+    metadata:
+      labels:
+        name: hosp2peer1
+    spec:
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+
+      containers:
+      - name: hosp2peer1
+        image: hyperledger/fabric-peer:1.4.4
+        command: ["sh", "-c", "sleep 1 && while [ ! -f /shared/status_configtxgen_complete ]; do echo Waiting for configtxgen; sleep 1; done;  peer node start"]
+        env:
+        - name: CORE_PEER_ADDRESSAUTODETECT
+          value: "true"
+        - name: CORE_PEER_ID
+          value: hosp2peer1
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-hosp2peer1:30910
+        - name: CORE_PEER_LISTENADDRESS
+          value: 0.0.0.0:30910
+        - name: CORE_PEER_EVENTS_ADDRESS
+          value: 0.0.0.0:30911
+        - name: CORE_PEER_GOSSIP_BOOTSTRAP
+          value: blockchain-hosp2peer1:30910
+        - name: CORE_PEER_GOSSIP_ORGLEADER
+          value: "false"
+        - name: CORE_PEER_GOSSIP_SKIPHANDSHAKE
+          value: "true"
+        - name: CORE_PEER_COMMITTER_ENABLED
+          value: "true"
+        - name: CORE_PEER_PROFILE_ENABLED
+          value: "true"
+        - name: CORE_VM_ENDPOINT
+          value: tcp://cadanac-docker:2375
+        - name: CORE_PEER_LOCALMSPID
+          value: Hospital2MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/hospital2.example.com/peers/peer0.hospital2.example.com/msp/
+        - name: FABRIC_LOGGING_SPEC
+          value: debug
+        - name: CORE_LOGGING_PEER
+          value: debug
+        - name: CORE_LOGGING_CAUTHDSL
+          value: debug
+        - name: CORE_LOGGING_GOSSIP
+          value: debug
+        - name: CORE_LOGGING_LEDGER
+          value: debug
+        - name: CORE_LOGGING_MSP
+          value: debug
+        - name: CORE_LOGGING_POLICIES
+          value: debug
+        - name: CORE_LOGGING_GRPC
+          value: debug
+        - name: CORE_PEER_TLS_ENABLED
+          value: "false"
+        - name: CORE_LEDGER_STATE_STATEDATABASE
+          value: goleveldb
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric/
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: GODEBUG
+          value: "netdns=go"
+        - name: CORE_VM_DOCKER_ATTACHSTDOUT
+          value: "true"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+        - mountPath: /host/var/run/docker.sock
+          name: dockersocket
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cadanac-v0-1
+  name: blockchain-ngo1peer1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ngo1peer1
+  template:
+    metadata:
+      labels:
+        name: ngo1peer1
+    spec:
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+
+      containers:
+      - name: ngo1peer1
+        image: hyperledger/fabric-peer:1.4.4
+        command: ["sh", "-c", "sleep 1 && while [ ! -f /shared/status_configtxgen_complete ]; do echo Waiting for configtxgen; sleep 1; done;  peer node start"]
+        env:
+        - name: CORE_PEER_ADDRESSAUTODETECT
+          value: "true"
+        - name: CORE_PEER_ID
+          value: ngo1peer1
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-ngo1peer1:31310
+        - name: CORE_PEER_LISTENADDRESS
+          value: 0.0.0.0:31310
+        - name: CORE_PEER_EVENTS_ADDRESS
+          value: 0.0.0.0:31311
+        - name: CORE_PEER_GOSSIP_BOOTSTRAP
+          value: blockchain-ngo1peer1:31310
+        - name: CORE_PEER_GOSSIP_ORGLEADER
+          value: "false"
+        - name: CORE_PEER_GOSSIP_SKIPHANDSHAKE
+          value: "true"
+        - name: CORE_PEER_COMMITTER_ENABLED
+          value: "true"
+        - name: CORE_PEER_PROFILE_ENABLED
+          value: "true"
+        - name: CORE_VM_ENDPOINT
+          value: tcp://cadanac-docker:2375
+        - name: CORE_PEER_LOCALMSPID
+          value: NGO1MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/ngo1.example.com/peers/peer0.ngo1.example.com/msp/
+        - name: FABRIC_LOGGING_SPEC
+          value: debug
+        - name: CORE_LOGGING_PEER
+          value: debug
+        - name: CORE_LOGGING_CAUTHDSL
+          value: debug
+        - name: CORE_LOGGING_GOSSIP
+          value: debug
+        - name: CORE_LOGGING_LEDGER
+          value: debug
+        - name: CORE_LOGGING_MSP
+          value: debug
+        - name: CORE_LOGGING_POLICIES
+          value: debug
+        - name: CORE_LOGGING_GRPC
+          value: debug
+        - name: CORE_PEER_TLS_ENABLED
+          value: "false"
+        - name: CORE_LEDGER_STATE_STATEDATABASE
+          value: goleveldb
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric/
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: GODEBUG
+          value: "netdns=go"
+        - name: CORE_VM_DOCKER_ATTACHSTDOUT
+          value: "true"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+        - mountPath: /host/var/run/docker.sock
+          name: dockersocket
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cadanac-v0-1
+  name: blockchain-ngo2peer1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ngo2peer1
+  template:
+    metadata:
+      labels:
+        name: ngo2peer1
+    spec:
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+
+      containers:
+      - name: ngo2peer1
+        image: hyperledger/fabric-peer:1.4.4
+        command: ["sh", "-c", "sleep 1 && while [ ! -f /shared/status_configtxgen_complete ]; do echo Waiting for configtxgen; sleep 1; done;  peer node start"]
+        env:
+        - name: CORE_PEER_ADDRESSAUTODETECT
+          value: "true"
+        - name: CORE_PEER_ID
+          value: ngo2peer1
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-ngo2peer1:31110
+        - name: CORE_PEER_LISTENADDRESS
+          value: 0.0.0.0:31110
+        - name: CORE_PEER_EVENTS_ADDRESS
+          value: 0.0.0.0:31111
+        - name: CORE_PEER_GOSSIP_BOOTSTRAP
+          value: blockchain-ngo2peer1:31110
+        - name: CORE_PEER_GOSSIP_ORGLEADER
+          value: "false"
+        - name: CORE_PEER_GOSSIP_SKIPHANDSHAKE
+          value: "true"
+        - name: CORE_PEER_COMMITTER_ENABLED
+          value: "true"
+        - name: CORE_PEER_PROFILE_ENABLED
+          value: "true"
+        - name: CORE_VM_ENDPOINT
+          value: tcp://cadanac-docker:2375
+        - name: CORE_PEER_LOCALMSPID
+          value: NGO2MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/ngo2.example.com/peers/peer0.ngo2.example.com/msp/
+        - name: FABRIC_LOGGING_SPEC
+          value: debug
+        - name: CORE_LOGGING_PEER
+          value: debug
+        - name: CORE_LOGGING_CAUTHDSL
+          value: debug
+        - name: CORE_LOGGING_GOSSIP
+          value: debug
+        - name: CORE_LOGGING_LEDGER
+          value: debug
+        - name: CORE_LOGGING_MSP
+          value: debug
+        - name: CORE_LOGGING_POLICIES
+          value: debug
+        - name: CORE_LOGGING_GRPC
+          value: debug
+        - name: CORE_PEER_TLS_ENABLED
+          value: "false"
+        - name: CORE_LEDGER_STATE_STATEDATABASE
+          value: goleveldb
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric/
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: GODEBUG
+          value: "netdns=go"
+        - name: CORE_VM_DOCKER_ATTACHSTDOUT
+          value: "true"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+        - mountPath: /host/var/run/docker.sock
+          name: dockersocket
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cadanac-v0-1
+  name: blockchain-gov1peer1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: gov1peer1
+  template:
+    metadata:
+      labels:
+        name: gov1peer1
+    spec:
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+
+      containers:
+      - name: gov1peer1
+        image: hyperledger/fabric-peer:1.4.4
+        command: ["sh", "-c", "sleep 1 && while [ ! -f /shared/status_configtxgen_complete ]; do echo Waiting for configtxgen; sleep 1; done;  peer node start"]
+        env:
+        - name: CORE_PEER_ADDRESSAUTODETECT
+          value: "true"
+        - name: CORE_PEER_ID
+          value: gov1peer1
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-gov1peer1:31210
+        - name: CORE_PEER_LISTENADDRESS
+          value: 0.0.0.0:31210
+        - name: CORE_PEER_EVENTS_ADDRESS
+          value: 0.0.0.0:31211
+        - name: CORE_PEER_GOSSIP_BOOTSTRAP
+          value: blockchain-gov1peer1:31210
+        - name: CORE_PEER_GOSSIP_ORGLEADER
+          value: "false"
+        - name: CORE_PEER_GOSSIP_SKIPHANDSHAKE
+          value: "true"
+        - name: CORE_PEER_COMMITTER_ENABLED
+          value: "true"
+        - name: CORE_PEER_PROFILE_ENABLED
+          value: "true"
+        - name: CORE_VM_ENDPOINT
+          value: tcp://cadanac-docker:2375
+        - name: CORE_PEER_LOCALMSPID
+          value: Government1MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/government1.example.com/peers/peer0.government1.example.com/msp/
+        - name: FABRIC_LOGGING_SPEC
+          value: debug
+        - name: CORE_LOGGING_PEER
+          value: debug
+        - name: CORE_LOGGING_CAUTHDSL
+          value: debug
+        - name: CORE_LOGGING_GOSSIP
+          value: debug
+        - name: CORE_LOGGING_LEDGER
+          value: debug
+        - name: CORE_LOGGING_MSP
+          value: debug
+        - name: CORE_LOGGING_POLICIES
+          value: debug
+        - name: CORE_LOGGING_GRPC
+          value: debug
+        - name: CORE_PEER_TLS_ENABLED
+          value: "false"
+        - name: CORE_LEDGER_STATE_STATEDATABASE
+          value: goleveldb
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric/
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: GODEBUG
+          value: "netdns=go"
+        - name: CORE_VM_DOCKER_ATTACHSTDOUT
+          value: "true"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+        - mountPath: /host/var/run/docker.sock
+          name: dockersocket

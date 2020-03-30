@@ -1,0 +1,35 @@
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  namespace: cadanac-v0-1
+  name: cadanac-pv
+  labels:
+    type: local
+    name: cadanacvolume
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    path: /fsharecadanac1
+    server: 10.24.69.82   #<-- Edit to match master node name or IP
+    readOnly: false
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  namespace: cadanac-v0-1
+  name: cadanac-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  selector:
+    matchLabels:
+      name: cadanacvolume

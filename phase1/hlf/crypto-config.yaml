@@ -1,0 +1,66 @@
+# ---------------------------------------------------------------------------
+# "OrdererOrgs" - Definition of organizations managing orderer nodes
+# ---------------------------------------------------------------------------
+OrdererOrgs:
+  # ---------------------------------------------------------------------------
+  # Orderer
+  # ---------------------------------------------------------------------------
+  - Name: Orderer
+    Domain: example.com
+    # ---------------------------------------------------------------------------
+    # "Specs" - See PeerOrgs below for complete description
+    # ---------------------------------------------------------------------------
+    Specs:
+      - Hostname: orderer
+# ---------------------------------------------------------------------------
+# "PeerOrgs" - Definition of organizations managing peer nodes
+# ---------------------------------------------------------------------------
+PeerOrgs:
+  - Name: CellPhoneCompany1
+    Domain: cellphonecompany1.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: CellPhoneCompany2
+    Domain: cellphonecompany2.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: CellPhoneCompany3
+    Domain: cellphonecompany3.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Hospital1
+    Domain: hospital1.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Hospital2
+    Domain: hospital2.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: NGO1
+    Domain: ngo1.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: NGO2
+    Domain: ngo2.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: Government1
+    Domain: government1.example.com
+    Template:
+      Count: 1
+    Users:
+      Count: 1

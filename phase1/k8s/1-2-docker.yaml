@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: cadanac-v0-1
+  name: cadanac-docker
+  labels:
+    run: cadanac-docker
+spec:
+  selector:
+    name: cadanac-docker
+  ports:
+  - protocol: TCP
+    targetPort: 2375
+    port: 2375
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cadanac-v0-1
+  name: cadanac-docker-dind
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: cadanac-docker
+  template:
+    metadata:
+      labels:
+        name: cadanac-docker
+    spec:
+      volumes:
+      - name: cadanac-dockervolume
+        persistentVolumeClaim:
+          claimName: cadanac-docker-pvc
+      containers:
+      - name: cadanac-docker
+        securityContext:
+          privileged: true
+        image: "docker:18.09-dind"
+        ports:
+        - containerPort: 2375
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: cadanac-dockervolume

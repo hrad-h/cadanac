@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cli-gov1
+  name: cli-gov1
+  namespace: cadanac-v0-1
+spec:
+  selector:
+    matchLabels:
+      app: cli-gov1
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: cli-gov1
+    spec:
+      containers:
+        - env:
+            - name: FABRIC_LOGGING_SPEC
+              value: INFO
+            - name: FABRIC_CFG_PATH
+              value: /etc/hyperledger/fabric
+            - name: CORE_PEER_MSPCONFIGPATH
+              value: /shared/crypto-config/peerOrganizations/government1.example.com/users/Admin@government1.example.com/msp
+            - name: CORE_PEER_LOCALMSPID
+              value: Government1MSP
+            - name: CORE_PEER_ADDRESS
+              value: blockchain-gov1peer1:31210
+            - name: GODEBUG
+              value: "netdns=go"
+            - name: GOPATH
+              value: /opt/gopath
+          image: hyperledger/fabric-tools:1.4.4
+          name: cli
+          tty: true
+          volumeMounts:
+          - mountPath: /shared
+            name: cadanacvolume
+          workingDir: /opt/gopath/src/chaincode/cadanac
+      restartPolicy: Always
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
