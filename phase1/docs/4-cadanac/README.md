@@ -18,9 +18,27 @@ Cadanac is a SAAS Virus Case Management System including Financial and Location 
 - Goverments
 - WHO
 
+### Cadanac SAAS Business Workflows
+
+Here are the Cadanac End-2-End SAAS Business Workflows for the Actors.  They are triggered when:
+
+-    a Host enters a Hospital with suspected Symptoms
+-    Government notification of the new case and requesting location updates from Cell Phone Companies
+-    daily Government tracking Host health and location changes
+-    Hospitals' continuing diagnosis, remediation and recovery of the Host
+-    weekly Governments allocating general funds for Hospitals
+-    weekly NGOs allocating funding for strategic ventures with Hospitals
+-    monthly Hospitals, Governments and NGOs reporting expenditures
+-    in real-time Cell Phone Companies update Host location
+
+Here are the SAAS workflows mapped to the Blockchain PAAS:
+
+![Cadanac_Business_Architecture_E2E.png](docs/4-cadanac/images/Cadanac_Business_Architecture_E2E.png)
+
+
 ### Use Cases
 
-Below are shown Back End Hyperledger Fabric chaincode invocation commands.
+Below are shown actual Back End Hyperledger Fabric chaincode invocation commands.
 
 TODO: create a Front End Mobile App and REST JSON API for the Back End.
 

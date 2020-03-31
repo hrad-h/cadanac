@@ -49,6 +49,23 @@ Cadanac delivers the following capabilities to
 
 - Efficacy vs Cost  
 
+## Cadanac SAAS Business Workflows
+
+Here are the Cadanac End-2-End SAAS Business Workflows for the Value Chain Capabilities.  They are triggered by:
+
+-    a Host enters a Hospital with suspected Symptoms
+-    Government notification of the new case and requesting location updates from Cell Phone Companies
+-    daily Government tracking Host health and location changes
+-    Hospitals' continuing diagnosis, remediation and recovery of the Host
+-    weekly Governments allocating general funds for Hospitals
+-    weekly NGOs allocating funding for strategic ventures with Hospitals
+-    monthly Hospitals, Governments and NGOs reporting expenditures
+-    in real-time Cell Phone Companies update Host location
+
+Here are the SAAS workflows mapped to the Blockchain PAAS:
+
+![Cadanac_Business_Architecture_E2E.png](docs/4-cadanac/images/Cadanac_Business_Architecture_E2E.png)
+
 
 ## Cadanac Core Principles
 
