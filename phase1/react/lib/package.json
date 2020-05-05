@@ -1,0 +1,10 @@
+{
+  "name": "cadanaclib",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "fabric-network": "~1.4.0"
+  },
+  "author": "",
+  "license": "ISC"
+}

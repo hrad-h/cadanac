@@ -76,6 +76,9 @@ echo -e "${pod} is now ${podSTATUS}"
 echo -e "\nStarting to copy artifacts in persistent volume."
 
 #fix for this script to work on icp and ICS
+#kubectl cp ./react $pod:/shared/
+sudo \rm -rf ~/cadanac_local_pv/react
+sudo cp -R ./react ~/cadanac_local_pv
 kubectl cp ./hlf $pod:/shared/artifacts
 
 echo "Waiting for 10 more seconds for copying artifacts to avoid any network delay"
@@ -173,7 +176,7 @@ while [ "${JOBSTATUS}" != "1/1" ]; do
 done
 echo "Join Channel Completed Successfully"
 
-
+#exit
 # Install chaincode on each peer
 echo -e "\nCreating installchaincode job"
 echo "Running: kubectl create -f ${KUBECONFIG_FOLDER}/chaincode_install.yaml"
@@ -209,19 +212,54 @@ while [ "${JOBSTATUS}" != "1/1" ]; do
 done
 echo "Chaincode Instantiation Completed Successfully"
 
-# Create cli orderer using Kubernetes Deployments
-echo -e "\nCreating new Deployment to create cli in network"
-echo "Running: kubectl create -f ${KUBECONFIG_FOLDER}/7-1-cli.yaml"
-kubectl create -f ${KUBECONFIG_FOLDER}/7-1-cli.yaml
+# temporary - not needed for dev
+## Create cli using Kubernetes Deployments
+#echo -e "\nCreating new Deployment to create cli in network"
+#echo "Running: kubectl create -f ${KUBECONFIG_FOLDER}/7-1-cli.yaml"
+#kubectl create -f ${KUBECONFIG_FOLDER}/7-1-cli.yaml
+#
+#echo "Checking if cli deployments are ready"
+#
+#NUMPENDING=$(kubectl get deployments | grep cli | awk '{print $5}' | grep 0 | wc -l | awk '{print $1}')
+#while [ "${NUMPENDING}" != "0" ]; do
+#    echo "Waiting on pending deployments. Deployments pending = ${NUMPENDING}"
+#    NUMPENDING=$(kubectl get deployments | grep cli | awk '{print $5}' | grep 0 | wc -l | awk '{print $1}')
+#    sleep 1
+#done
 
-echo "Checking if cli deployments are ready"
+#delete completed jobs
+pod=$(kubectl get pods --selector=job-name=joinchannel --output=jsonpath={.items..metadata.name})
+kubectl delete po $pod
+pod=$(kubectl get pods --selector=job-name=utils --output=jsonpath={.items..metadata.name})
+kubectl delete po $pod
+pod=$(kubectl get pods --selector=job-name=copyartifacts --output=jsonpath={.items..metadata.name})
+kubectl delete po $pod
+pod=$(kubectl get pods --selector=job-name=chaincodeinstall --output=jsonpath={.items..metadata.name})
+kubectl delete po $pod
+pod=$(kubectl get pods --selector=job-name=chaincodeinstantiate --output=jsonpath={.items..metadata.name})
+kubectl delete po $pod
+pod=$(kubectl get pods --selector=job-name=createchannel --output=jsonpath={.items..metadata.name})
+kubectl delete po $pod
 
-NUMPENDING=$(kubectl get deployments | grep cli | awk '{print $5}' | grep 0 | wc -l | awk '{print $1}')
+# Create reactservers using Kubernetes Deployments
+echo -e "\nCreating new Deployment to create reactservers in network"
+echo "Running: kubectl create -f ${KUBECONFIG_FOLDER}/8-1-reacthospitalservers.yaml"
+kubectl create -f ${KUBECONFIG_FOLDER}/8-1-reacthospitalservers.yaml
+sleep 300
+kubectl create -f ${KUBECONFIG_FOLDER}/8-2-reactgeoservers.yaml
+sleep 300
+kubectl create -f ${KUBECONFIG_FOLDER}/8-3-reactgovernmentservers.yaml
+
+echo "Checking if reactservers deployments are ready"
+
+NUMPENDING=$(kubectl get deployments | grep react | awk '{print $5}' | grep 0 | wc -l | awk '{print $1}')
 while [ "${NUMPENDING}" != "0" ]; do
     echo "Waiting on pending deployments. Deployments pending = ${NUMPENDING}"
-    NUMPENDING=$(kubectl get deployments | grep cli | awk '{print $5}' | grep 0 | wc -l | awk '{print $1}')
+    NUMPENDING=$(kubectl get deployments | grep react | awk '{print $5}' | grep 0 | wc -l | awk '{print $1}')
     sleep 1
 done
 
-#sleep 15
+#temporary not needed for dev
+#kubectl create -f ${KUBECONFIG_FOLDER}/9-1-nginxserver.yaml
+
 echo -e "\nNetwork Setup Completed !!"

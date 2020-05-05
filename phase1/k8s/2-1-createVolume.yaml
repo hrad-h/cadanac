@@ -9,14 +9,21 @@ metadata:
     name: cadanacvolume
 spec:
   capacity:
-    storage: 1Gi
+    storage: 400Mi
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  nfs:
-    path: /fsharecadanac1
-    server: 10.24.69.82   #<-- Edit to match master node name or IP
-    readOnly: false
+  storageClassName: manual
+  hostPath:
+    path: /home/gcpdev/cadanac_local_pv
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - instance-cadanac-1
 
 ---
 kind: PersistentVolumeClaim
@@ -25,11 +32,12 @@ metadata:
   namespace: cadanac-v0-1
   name: cadanac-pvc
 spec:
+  storageClassName: manual
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: 400Mi
   selector:
     matchLabels:
       name: cadanacvolume

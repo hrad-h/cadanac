@@ -1,6 +1,12 @@
 
 KUBECONFIG_FOLDER=${PWD}/k8s
 
+kubectl delete -f ${KUBECONFIG_FOLDER}/9-1-nginxserver.yaml
+
+kubectl delete -f ${KUBECONFIG_FOLDER}/8-3-reactgovernmentservers.yaml
+kubectl delete -f ${KUBECONFIG_FOLDER}/8-2-reactgeoservers.yaml
+kubectl delete -f ${KUBECONFIG_FOLDER}/8-1-reacthospitalservers.yaml
+
 kubectl delete -f ${KUBECONFIG_FOLDER}/7-1-cli.yaml
 
 kubectl delete -f ${KUBECONFIG_FOLDER}/6-2-chaincode_instantiate.yaml
@@ -21,8 +27,6 @@ kubectl delete -f ${KUBECONFIG_FOLDER}/2-1-createVolume.yaml
 kubectl delete --ignore-not-found=true -f ${KUBECONFIG_FOLDER}/1-1-docker-volume.yaml
 
 kubectl delete -f ${KUBECONFIG_FOLDER}/0-1-Namespace.yaml
-
-#sleep 15
 
 echo -e "\npv:" 
 kubectl get pv

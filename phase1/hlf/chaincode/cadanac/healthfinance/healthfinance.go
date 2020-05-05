@@ -24,7 +24,7 @@ type healthFinance struct {
 	HealthFinanceID       string `json:"healthFinanceID"`    //the fieldtags are needed to keep case from bouncing around
 	VirusType      string `json:"virusType"`
 	RemediationID       string    `json:"remediationID"`
-        BalanceRemaining  float64 `json:"balanceRemaining"`
+        FinancialAmount  float64 `json:"financialAmount"`
 }
 
 // ===================================================================================
@@ -52,8 +52,8 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	// Handle different functions
 	if function == "createHealthFinance" { //create a new healthFinance
 		return t.createHealthFinance(stub, args)
-	} else if function == "updateRemediationIDBalanceRemaining" { //change balanceRemaining of a specific healthFinance
-		return t.updateRemediationIDBalanceRemaining(stub, args)
+	} else if function == "updateRemediationIDFinancialAmount" { //change financialAmount of a specific healthFinance
+		return t.updateRemediationIDFinancialAmount(stub, args)
 	} else if function == "readHealthFinance" { //read a healthFinance
 		return t.readHealthFinance(stub, args)
 	} else if function == "getHistoryForHealthFinance" { //get history of values for a healthFinance
@@ -93,7 +93,7 @@ func (t *SimpleChaincode) createHealthFinance(stub shim.ChaincodeStubInterface, 
 
         pkHealthFinanceID := args[0]
         remediationID := args[1]
-        balanceRemaining , err := strconv.ParseFloat(args[2], 32)
+        financialAmount , err := strconv.ParseFloat(args[2], 32)
         if err != nil {
                 return shim.Error("3rd argument must be a numeric string")
         }
@@ -111,7 +111,7 @@ func (t *SimpleChaincode) createHealthFinance(stub shim.ChaincodeStubInterface, 
 
 	// ==== Create healthFinance object and marshal to JSON ====
 	objectType := "healthFinance"
-	healthFinance := &healthFinance{objectType, pkHealthFinanceID, virusType, remediationID, balanceRemaining}
+	healthFinance := &healthFinance{objectType, pkHealthFinanceID, virusType, remediationID, financialAmount}
 	healthFinanceJSONasBytes, err := json.Marshal(healthFinance)
 	if err != nil {
 		return shim.Error(err.Error())
@@ -151,9 +151,9 @@ func (t *SimpleChaincode) readHealthFinance(stub shim.ChaincodeStubInterface, ar
 }
 
 // ===========================================================
-// transfer a healthFinance by setting a new balanceRemaining healthFinanceID on the healthFinance
+// transfer a healthFinance by setting a new financialAmount healthFinanceID on the healthFinance
 // ===========================================================
-func (t *SimpleChaincode) updateRemediationIDBalanceRemaining(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *SimpleChaincode) updateRemediationIDFinancialAmount(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	//   0       1
 	// "healthFinanceID", "bob"
@@ -172,13 +172,13 @@ func (t *SimpleChaincode) updateRemediationIDBalanceRemaining(stub shim.Chaincod
 
 	pkHealthFinanceID := args[0]
         remediationID := args[1]
-        balanceRemaining , err := strconv.ParseFloat(args[2], 32)
+        financialAmount , err := strconv.ParseFloat(args[2], 32)
         if err != nil {
                 return shim.Error("3rd argument must be a numeric string")
         }
         virusType := args[3]
 
-	fmt.Println("- start transferHealthFinance ", pkHealthFinanceID, remediationID, balanceRemaining)
+	fmt.Println("- start transferHealthFinance ", pkHealthFinanceID, remediationID, financialAmount)
 
 	healthFinanceAsBytes, err := stub.GetState(pkHealthFinanceID)
 	if err != nil {
@@ -192,9 +192,9 @@ func (t *SimpleChaincode) updateRemediationIDBalanceRemaining(stub shim.Chaincod
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-	healthFinanceToTransfer.RemediationID = remediationID //change the balanceRemaining
-	healthFinanceToTransfer.BalanceRemaining = healthFinanceToTransfer.BalanceRemaining + balanceRemaining //change the balanceRemaining
-	healthFinanceToTransfer.VirusType = virusType //change the balanceRemaining
+	healthFinanceToTransfer.RemediationID = remediationID //change the financialAmount
+	healthFinanceToTransfer.FinancialAmount = healthFinanceToTransfer.FinancialAmount + financialAmount //change the financialAmount
+	healthFinanceToTransfer.VirusType = virusType //change the financialAmount
 
 	healthFinanceJSONasBytes, _ := json.Marshal(healthFinanceToTransfer)
 	err = stub.PutState(pkHealthFinanceID, healthFinanceJSONasBytes) //rewrite the healthFinance

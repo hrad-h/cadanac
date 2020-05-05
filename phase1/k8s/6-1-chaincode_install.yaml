@@ -16,13 +16,39 @@ spec:
         persistentVolumeClaim:
           claimName: cadanac-pvc
       containers:
+      - name: gov1peer1
+        image: hyperledger/fabric-tools:1.4.4
+        imagePullPolicy: Always
+        command: ["sh", "-c", "echo $GOPATH; cp -r /shared/artifacts/chaincode $GOPATH/src/; find $GOPATH/src; peer chaincode install -n personlocation -v ${CHAINCODE_VERSION} -p cadanac/personlocation/; peer chaincode install -n personhealth -v ${CHAINCODE_VERSION} -p cadanac/personhealth/; peer chaincode install -n healthfinance -v ${CHAINCODE_VERSION} -p cadanac/healthfinance/"]
+        env:
+        - name: CHAINCODE_VERSION
+          value: "0.4"
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-gov1peer1:31210
+        - name: CORE_PEER_LOCALMSPID
+          value: Government1MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/government1.example.com/users/Admin@government1.example.com/msp/
+        - name: FABRIC_LOGGING_SPECL
+          value: info
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric
+        - name: GODEBUG
+          value: "netdns=go"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
       - name: cpc1peer1
         image: hyperledger/fabric-tools:1.4.4
         imagePullPolicy: Always
         command: ["sh", "-c", "echo $GOPATH; cp -r /shared/artifacts/chaincode $GOPATH/src/; find $GOPATH/src; peer chaincode install -n personlocation -v ${CHAINCODE_VERSION} -p cadanac/personlocation/; peer chaincode install -n personhealth -v ${CHAINCODE_VERSION} -p cadanac/personhealth/; peer chaincode install -n healthfinance -v ${CHAINCODE_VERSION} -p cadanac/healthfinance/"]
         env:
         - name: CHAINCODE_VERSION
-          value: "0.1"
+          value: "0.4"
         - name: CORE_PEER_NETWORKID
           value: nid1
         - name: ORDERER_URL
@@ -34,7 +60,7 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/cellphonecompany1.example.com/users/Admin@cellphonecompany1.example.com/msp/
         - name: FABRIC_LOGGING_SPECL
-          value: debug
+          value: info
         - name: FABRIC_CFG_PATH
           value: /etc/hyperledger/fabric
         - name: GODEBUG
@@ -48,7 +74,7 @@ spec:
         command: ["sh", "-c", "echo $GOPATH; cp -r /shared/artifacts/chaincode $GOPATH/src/; find $GOPATH/src; peer chaincode install -n personlocation -v ${CHAINCODE_VERSION} -p cadanac/personlocation/; peer chaincode install -n personhealth -v ${CHAINCODE_VERSION} -p cadanac/personhealth/; peer chaincode install -n healthfinance -v ${CHAINCODE_VERSION} -p cadanac/healthfinance/"]
         env:
         - name: CHAINCODE_VERSION
-          value: "0.1"
+          value: "0.4"
         - name: CORE_PEER_NETWORKID
           value: nid1
         - name: ORDERER_URL
@@ -60,7 +86,7 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/cellphonecompany2.example.com/users/Admin@cellphonecompany2.example.com/msp/
         - name: FABRIC_LOGGING_SPECL
-          value: debug
+          value: info
         - name: FABRIC_CFG_PATH
           value: /etc/hyperledger/fabric
         - name: GODEBUG
@@ -74,7 +100,7 @@ spec:
         command: ["sh", "-c", "echo $GOPATH; cp -r /shared/artifacts/chaincode $GOPATH/src/; find $GOPATH/src; peer chaincode install -n personlocation -v ${CHAINCODE_VERSION} -p cadanac/personlocation/; peer chaincode install -n personhealth -v ${CHAINCODE_VERSION} -p cadanac/personhealth/; peer chaincode install -n healthfinance -v ${CHAINCODE_VERSION} -p cadanac/healthfinance/"]
         env:
         - name: CHAINCODE_VERSION
-          value: "0.1"
+          value: "0.4"
         - name: CORE_PEER_NETWORKID
           value: nid1
         - name: ORDERER_URL
@@ -86,7 +112,7 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/cellphonecompany3.example.com/users/Admin@cellphonecompany3.example.com/msp/
         - name: FABRIC_LOGGING_SPECL
-          value: debug
+          value: info
         - name: FABRIC_CFG_PATH
           value: /etc/hyperledger/fabric
         - name: GODEBUG
@@ -100,7 +126,7 @@ spec:
         command: ["sh", "-c", "echo $GOPATH; cp -r /shared/artifacts/chaincode $GOPATH/src/; find $GOPATH/src; peer chaincode install -n personlocation -v ${CHAINCODE_VERSION} -p cadanac/personlocation/; peer chaincode install -n personhealth -v ${CHAINCODE_VERSION} -p cadanac/personhealth/; peer chaincode install -n healthfinance -v ${CHAINCODE_VERSION} -p cadanac/healthfinance/"]
         env:
         - name: CHAINCODE_VERSION
-          value: "0.1"
+          value: "0.4"
         - name: CORE_PEER_NETWORKID
           value: nid1
         - name: ORDERER_URL
@@ -112,7 +138,7 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/hospital1.example.com/users/Admin@hospital1.example.com/msp/
         - name: FABRIC_LOGGING_SPECL
-          value: debug
+          value: info
         - name: FABRIC_CFG_PATH
           value: /etc/hyperledger/fabric
         - name: GODEBUG
@@ -126,7 +152,7 @@ spec:
         command: ["sh", "-c", "echo $GOPATH; cp -r /shared/artifacts/chaincode $GOPATH/src/; find $GOPATH/src; peer chaincode install -n personlocation -v ${CHAINCODE_VERSION} -p cadanac/personlocation/; peer chaincode install -n personhealth -v ${CHAINCODE_VERSION} -p cadanac/personhealth/; peer chaincode install -n healthfinance -v ${CHAINCODE_VERSION} -p cadanac/healthfinance/"]
         env:
         - name: CHAINCODE_VERSION
-          value: "0.1"
+          value: "0.4"
         - name: CORE_PEER_NETWORKID
           value: nid1
         - name: ORDERER_URL
@@ -138,7 +164,7 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/hospital2.example.com/users/Admin@hospital2.example.com/msp/
         - name: FABRIC_LOGGING_SPECL
-          value: debug
+          value: info
         - name: FABRIC_CFG_PATH
           value: /etc/hyperledger/fabric
         - name: GODEBUG
@@ -152,7 +178,7 @@ spec:
         command: ["sh", "-c", "echo $GOPATH; cp -r /shared/artifacts/chaincode $GOPATH/src/; find $GOPATH/src; peer chaincode install -n personlocation -v ${CHAINCODE_VERSION} -p cadanac/personlocation/; peer chaincode install -n personhealth -v ${CHAINCODE_VERSION} -p cadanac/personhealth/; peer chaincode install -n healthfinance -v ${CHAINCODE_VERSION} -p cadanac/healthfinance/"]
         env:
         - name: CHAINCODE_VERSION
-          value: "0.1"
+          value: "0.4"
         - name: CORE_PEER_NETWORKID
           value: nid1
         - name: ORDERER_URL
@@ -164,7 +190,7 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/ngo1.example.com/users/Admin@ngo1.example.com/msp/
         - name: FABRIC_LOGGING_SPECL
-          value: debug
+          value: info
         - name: FABRIC_CFG_PATH
           value: /etc/hyperledger/fabric
         - name: GODEBUG
@@ -178,7 +204,7 @@ spec:
         command: ["sh", "-c", "echo $GOPATH; cp -r /shared/artifacts/chaincode $GOPATH/src/; find $GOPATH/src; peer chaincode install -n personlocation -v ${CHAINCODE_VERSION} -p cadanac/personlocation/; peer chaincode install -n personhealth -v ${CHAINCODE_VERSION} -p cadanac/personhealth/; peer chaincode install -n healthfinance -v ${CHAINCODE_VERSION} -p cadanac/healthfinance/"]
         env:
         - name: CHAINCODE_VERSION
-          value: "0.1"
+          value: "0.4"
         - name: CORE_PEER_NETWORKID
           value: nid1
         - name: ORDERER_URL
@@ -190,33 +216,7 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/ngo2.example.com/users/Admin@ngo2.example.com/msp/
         - name: FABRIC_LOGGING_SPECL
-          value: debug
-        - name: FABRIC_CFG_PATH
-          value: /etc/hyperledger/fabric
-        - name: GODEBUG
-          value: "netdns=go"
-        volumeMounts:
-        - mountPath: /shared
-          name: cadanacvolume
-      - name: gov1peer1
-        image: hyperledger/fabric-tools:1.4.4
-        imagePullPolicy: Always
-        command: ["sh", "-c", "echo $GOPATH; cp -r /shared/artifacts/chaincode $GOPATH/src/; find $GOPATH/src; peer chaincode install -n personlocation -v ${CHAINCODE_VERSION} -p cadanac/personlocation/; peer chaincode install -n personhealth -v ${CHAINCODE_VERSION} -p cadanac/personhealth/; peer chaincode install -n healthfinance -v ${CHAINCODE_VERSION} -p cadanac/healthfinance/"]
-        env:
-        - name: CHAINCODE_VERSION
-          value: "0.1"
-        - name: CORE_PEER_NETWORKID
-          value: nid1
-        - name: ORDERER_URL
-          value: blockchain-orderer:31010
-        - name: CORE_PEER_ADDRESS
-          value: blockchain-gov1peer1:31210
-        - name: CORE_PEER_LOCALMSPID
-          value: Government1MSP
-        - name: CORE_PEER_MSPCONFIGPATH
-          value: /shared/crypto-config/peerOrganizations/government1.example.com/users/Admin@government1.example.com/msp/
-        - name: FABRIC_LOGGING_SPECL
-          value: debug
+          value: info
         - name: FABRIC_CFG_PATH
           value: /etc/hyperledger/fabric
         - name: GODEBUG

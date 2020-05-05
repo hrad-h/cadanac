@@ -5,6 +5,10 @@
 
 This is a prototype to research and create a simulation of a real-world project using the capabilities of Google Cloud, Kubernetes, Docker and Hyperledger Fabric.  This work attempts to go beyond a simple "HowTo Create Your First ..."
 
+The latest documentation for Cadanac is here (https://www.linkedin.com/pulse/cadanac-system-method-tracking-covid19-multiple-host-hrad-hekimian)
+
+Cadanac is NOT production ready.
+
 This project has taken tidbits of inspiration from many other authors, all of whom are gratefully acknowledged.  **We are all standing on the shoulders of Giants!**
 
 This project was coded completely on the cloud using Unix commands and vi :-)
@@ -81,6 +85,7 @@ Some links that challenge the core principles
 -	https://www.ibm.com/blogs/blockchain/2019/04/does-hyperledger-fabric-perform-at-scale/
 -	https://blog.bybit.com/research-and-analysis/blockchain-performance-and-scalability-hyperledger-fabric/
 -	https://thenextweb.com/podium/2019/05/05/ibms-hyperledger-isnt-a-real-blockchain-heres-why/
+-	https://medium.com/kokster/simpler-setup-for-hyperledger-fabric-on-kubernetes-using-docker-in-docker-8346f70fbe80
 
 Mitigation involves applying rigorous system stress tests.
 

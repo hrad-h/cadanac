@@ -43,7 +43,7 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/government1.example.com/peers/peer0.government1.example.com/msp/
         - name: FABRIC_LOGGING_SPEC
-          value: debug
+          value: info
         - name: FABRIC_CFG_PATH
           value: /etc/hyperledger/fabric
         - name: GODEBUG

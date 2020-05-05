@@ -1,0 +1,153 @@
+{
+    "name": "cadanac-network",
+    "version": "1.0.0",
+    "x-type": "hlfv1",
+    "client": {
+        "organization": "Government1",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300"
+                },
+                "orderer": "300"
+            }
+        }
+    },
+    "channels": {
+        "channelpersonlocation": {
+            "orderers": [
+                "orderer.example.com"
+            ],
+            "peers": {
+                "peer0.government1.example.com": {}
+            }
+        },
+        "channelpersonhealth": {
+            "orderers": [
+                "orderer.example.com"
+            ],
+            "peers": {
+                "peer0.government1.example.com": {}
+            }
+        },
+        "channelhealthfinance": {
+            "orderers": [
+                "orderer.example.com"
+            ],
+            "peers": {
+                "peer0.government1.example.com": {}
+            }
+        }
+    },
+    "organizations": {
+        "CellPhoneCompany1": {
+            "mspid": "CellPhoneCompany1MSP",
+            "peers": [
+                "peer0.cellphonecompany1.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.example.com"
+            ]
+        },
+        "CellPhoneCompany2": {
+            "mspid": "CellPhoneCompany2MSP",
+            "peers": [
+                "peer0.cellphonecompany2.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.example.com"
+            ]
+        },
+        "CellPhoneCompany3": {
+            "mspid": "CellPhoneCompany3MSP",
+            "peers": [
+                "peer0.cellphonecompany3.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.example.com"
+            ]
+        },
+        "Hospital1": {
+            "mspid": "Hospital1MSP",
+            "peers": [
+                "peer0.hospital1.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.example.com"
+            ]
+        },
+        "Hospital2": {
+            "mspid": "Hospital2MSP",
+            "peers": [
+                "peer0.hospital2.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.example.com"
+            ]
+        },
+        "NGO1": {
+            "mspid": "NGO1MSP",
+            "peers": [
+                "peer0.ngo1.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.example.com"
+            ]
+        },
+        "NGO2": {
+            "mspid": "NGO2MSP",
+            "peers": [
+                "peer0.ngo2.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.example.com"
+            ]
+        },
+        "Government1": {
+            "mspid": "Government1MSP",
+            "peers": [
+                "peer0.government1.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.example.com"
+            ]
+        }
+    },
+    "orderers": {
+        "orderer.example.com": {
+            "url": "grpc://blockchain-orderer:31010"
+        }
+    },
+    "peers": {
+        "peer0.cellphonecompany1.example.com": {
+            "url": "grpc://blockchain-cpc1peer1:30510"
+        },
+        "peer0.cellphonecompany2.example.com": {
+            "url": "grpc://blockchain-cpc2peer1:30610"
+        },
+        "peer0.cellphonecompany3.example.com": {
+            "url": "grpc://blockchain-cpc3peer1:30710"
+        },
+        "peer0.hospital1.example.com": {
+            "url": "grpc://blockchain-hosp1peer1:30810"
+        },
+        "peer0.hospital2.example.com": {
+            "url": "grpc://blockchain-hosp2peer1:30910"
+        },
+        "peer0.ngo1.example.com": {
+            "url": "grpc://blockchain-ngo1peer1:31310"
+        },
+        "peer0.ngo2.example.com": {
+            "url": "grpc://blockchain-ngo2peer1:31110"
+        },
+        "peer0.government1.example.com": {
+            "url": "grpc://blockchain-gov1peer1:31210"
+        }
+    },
+    "certificateAuthorities": {
+        "ca.example.com": {
+            "url": "http://blockchain-ca:30054",
+            "caName": "ca.example.com"
+        }
+    }
+}

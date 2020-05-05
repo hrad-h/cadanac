@@ -43,7 +43,7 @@ spec:
         - name: ORDERER_GENERAL_LISTENPORT
           value: "31010"
         - name: ORDERER_GENERAL_LOGLEVEL
-          value: debug
+          value: info
         - name: ORDERER_GENERAL_LOCALMSPDIR
           value: /shared/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp
         - name: ORDERER_GENERAL_LOCALMSPID
@@ -113,6 +113,97 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: cadanac-v0-1
+  name: blockchain-gov1peer1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: gov1peer1
+  template:
+    metadata:
+      labels:
+        name: gov1peer1
+    spec:
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+
+      containers:
+      - name: gov1peer1
+        image: hyperledger/fabric-peer:1.4.4
+        command: ["sh", "-c", "sleep 1 && while [ ! -f /shared/status_configtxgen_complete ]; do echo Waiting for configtxgen; sleep 1; done;  peer node start"]
+        env:
+        - name: CORE_PEER_ADDRESSAUTODETECT
+          value: "true"
+        - name: CORE_PEER_ID
+          value: gov1peer1
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-gov1peer1:31210
+        - name: CORE_PEER_LISTENADDRESS
+          value: 0.0.0.0:31210
+        - name: CORE_PEER_EVENTS_ADDRESS
+          value: 0.0.0.0:31211
+        - name: CORE_PEER_GOSSIP_BOOTSTRAP
+          value: blockchain-gov1peer1:31210
+        - name: CORE_PEER_GOSSIP_ORGLEADER
+          value: "false"
+        - name: CORE_PEER_GOSSIP_SKIPHANDSHAKE
+          value: "true"
+        - name: CORE_PEER_COMMITTER_ENABLED
+          value: "true"
+        - name: CORE_PEER_PROFILE_ENABLED
+          value: "true"
+        - name: CORE_VM_ENDPOINT
+          value: tcp://cadanac-docker:2375
+        - name: CORE_PEER_LOCALMSPID
+          value: Government1MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/government1.example.com/peers/peer0.government1.example.com/msp/
+        - name: FABRIC_LOGGING_SPEC
+          value: info
+        - name: CORE_LOGGING_PEER
+          value: info
+        - name: CORE_LOGGING_CAUTHDSL
+          value: info
+        - name: CORE_LOGGING_GOSSIP
+          value: info
+        - name: CORE_LOGGING_LEDGER
+          value: info
+        - name: CORE_LOGGING_MSP
+          value: info
+        - name: CORE_LOGGING_POLICIES
+          value: info
+        - name: CORE_LOGGING_GRPC
+          value: info
+        - name: CORE_PEER_TLS_ENABLED
+          value: "false"
+        - name: CORE_LEDGER_STATE_STATEDATABASE
+          value: goleveldb
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric/
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: GODEBUG
+          value: "netdns=go"
+        - name: CORE_VM_DOCKER_ATTACHSTDOUT
+          value: "true"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+        - mountPath: /host/var/run/docker.sock
+          name: dockersocket
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: cadanac-v0-1
   name: blockchain-cpc1peer1
 spec:
   replicas: 1
@@ -166,21 +257,21 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/cellphonecompany1.example.com/peers/peer0.cellphonecompany1.example.com/msp/
         - name: FABRIC_LOGGING_SPEC
-          value: debug
+          value: info
         - name: CORE_LOGGING_PEER
-          value: debug
+          value: info
         - name: CORE_LOGGING_CAUTHDSL
-          value: debug
+          value: info
         - name: CORE_LOGGING_GOSSIP
-          value: debug
+          value: info
         - name: CORE_LOGGING_LEDGER
-          value: debug
+          value: info
         - name: CORE_LOGGING_MSP
-          value: debug
+          value: info
         - name: CORE_LOGGING_POLICIES
-          value: debug
+          value: info
         - name: CORE_LOGGING_GRPC
-          value: debug
+          value: info
         - name: CORE_PEER_TLS_ENABLED
           value: "false"
         - name: CORE_LEDGER_STATE_STATEDATABASE
@@ -257,21 +348,21 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/cellphonecompany2.example.com/peers/peer0.cellphonecompany2.example.com/msp/
         - name: FABRIC_LOGGING_SPEC
-          value: debug
+          value: info
         - name: CORE_LOGGING_PEER
-          value: debug
+          value: info
         - name: CORE_LOGGING_CAUTHDSL
-          value: debug
+          value: info
         - name: CORE_LOGGING_GOSSIP
-          value: debug
+          value: info
         - name: CORE_LOGGING_LEDGER
-          value: debug
+          value: info
         - name: CORE_LOGGING_MSP
-          value: debug
+          value: info
         - name: CORE_LOGGING_POLICIES
-          value: debug
+          value: info
         - name: CORE_LOGGING_GRPC
-          value: debug
+          value: info
         - name: CORE_PEER_TLS_ENABLED
           value: "false"
         - name: CORE_LEDGER_STATE_STATEDATABASE
@@ -348,21 +439,21 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/cellphonecompany3.example.com/peers/peer0.cellphonecompany3.example.com/msp/
         - name: FABRIC_LOGGING_SPEC
-          value: debug
+          value: info
         - name: CORE_LOGGING_PEER
-          value: debug
+          value: info
         - name: CORE_LOGGING_CAUTHDSL
-          value: debug
+          value: info
         - name: CORE_LOGGING_GOSSIP
-          value: debug
+          value: info
         - name: CORE_LOGGING_LEDGER
-          value: debug
+          value: info
         - name: CORE_LOGGING_MSP
-          value: debug
+          value: info
         - name: CORE_LOGGING_POLICIES
-          value: debug
+          value: info
         - name: CORE_LOGGING_GRPC
-          value: debug
+          value: info
         - name: CORE_PEER_TLS_ENABLED
           value: "false"
         - name: CORE_LEDGER_STATE_STATEDATABASE
@@ -439,21 +530,21 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/hospital1.example.com/peers/peer0.hospital1.example.com/msp/
         - name: FABRIC_LOGGING_SPEC
-          value: debug
+          value: info
         - name: CORE_LOGGING_PEER
-          value: debug
+          value: info
         - name: CORE_LOGGING_CAUTHDSL
-          value: debug
+          value: info
         - name: CORE_LOGGING_GOSSIP
-          value: debug
+          value: info
         - name: CORE_LOGGING_LEDGER
-          value: debug
+          value: info
         - name: CORE_LOGGING_MSP
-          value: debug
+          value: info
         - name: CORE_LOGGING_POLICIES
-          value: debug
+          value: info
         - name: CORE_LOGGING_GRPC
-          value: debug
+          value: info
         - name: CORE_PEER_TLS_ENABLED
           value: "false"
         - name: CORE_LEDGER_STATE_STATEDATABASE
@@ -530,21 +621,21 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/hospital2.example.com/peers/peer0.hospital2.example.com/msp/
         - name: FABRIC_LOGGING_SPEC
-          value: debug
+          value: info
         - name: CORE_LOGGING_PEER
-          value: debug
+          value: info
         - name: CORE_LOGGING_CAUTHDSL
-          value: debug
+          value: info
         - name: CORE_LOGGING_GOSSIP
-          value: debug
+          value: info
         - name: CORE_LOGGING_LEDGER
-          value: debug
+          value: info
         - name: CORE_LOGGING_MSP
-          value: debug
+          value: info
         - name: CORE_LOGGING_POLICIES
-          value: debug
+          value: info
         - name: CORE_LOGGING_GRPC
-          value: debug
+          value: info
         - name: CORE_PEER_TLS_ENABLED
           value: "false"
         - name: CORE_LEDGER_STATE_STATEDATABASE
@@ -621,21 +712,21 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/ngo1.example.com/peers/peer0.ngo1.example.com/msp/
         - name: FABRIC_LOGGING_SPEC
-          value: debug
+          value: info
         - name: CORE_LOGGING_PEER
-          value: debug
+          value: info
         - name: CORE_LOGGING_CAUTHDSL
-          value: debug
+          value: info
         - name: CORE_LOGGING_GOSSIP
-          value: debug
+          value: info
         - name: CORE_LOGGING_LEDGER
-          value: debug
+          value: info
         - name: CORE_LOGGING_MSP
-          value: debug
+          value: info
         - name: CORE_LOGGING_POLICIES
-          value: debug
+          value: info
         - name: CORE_LOGGING_GRPC
-          value: debug
+          value: info
         - name: CORE_PEER_TLS_ENABLED
           value: "false"
         - name: CORE_LEDGER_STATE_STATEDATABASE
@@ -712,112 +803,21 @@ spec:
         - name: CORE_PEER_MSPCONFIGPATH
           value: /shared/crypto-config/peerOrganizations/ngo2.example.com/peers/peer0.ngo2.example.com/msp/
         - name: FABRIC_LOGGING_SPEC
-          value: debug
+          value: info
         - name: CORE_LOGGING_PEER
-          value: debug
+          value: info
         - name: CORE_LOGGING_CAUTHDSL
-          value: debug
+          value: info
         - name: CORE_LOGGING_GOSSIP
-          value: debug
+          value: info
         - name: CORE_LOGGING_LEDGER
-          value: debug
+          value: info
         - name: CORE_LOGGING_MSP
-          value: debug
+          value: info
         - name: CORE_LOGGING_POLICIES
-          value: debug
+          value: info
         - name: CORE_LOGGING_GRPC
-          value: debug
-        - name: CORE_PEER_TLS_ENABLED
-          value: "false"
-        - name: CORE_LEDGER_STATE_STATEDATABASE
-          value: goleveldb
-        - name: FABRIC_CFG_PATH
-          value: /etc/hyperledger/fabric/
-        - name: ORDERER_URL
-          value: blockchain-orderer:31010
-        - name: GODEBUG
-          value: "netdns=go"
-        - name: CORE_VM_DOCKER_ATTACHSTDOUT
-          value: "true"
-        volumeMounts:
-        - mountPath: /shared
-          name: cadanacvolume
-        - mountPath: /host/var/run/docker.sock
-          name: dockersocket
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  namespace: cadanac-v0-1
-  name: blockchain-gov1peer1
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: gov1peer1
-  template:
-    metadata:
-      labels:
-        name: gov1peer1
-    spec:
-      volumes:
-      - name: cadanacvolume
-        persistentVolumeClaim:
-          claimName: cadanac-pvc
-      - name: dockersocket
-        hostPath:
-          path: /var/run/docker.sock
-
-      containers:
-      - name: gov1peer1
-        image: hyperledger/fabric-peer:1.4.4
-        command: ["sh", "-c", "sleep 1 && while [ ! -f /shared/status_configtxgen_complete ]; do echo Waiting for configtxgen; sleep 1; done;  peer node start"]
-        env:
-        - name: CORE_PEER_ADDRESSAUTODETECT
-          value: "true"
-        - name: CORE_PEER_ID
-          value: gov1peer1
-        - name: CORE_PEER_NETWORKID
-          value: nid1
-        - name: CORE_PEER_ADDRESS
-          value: blockchain-gov1peer1:31210
-        - name: CORE_PEER_LISTENADDRESS
-          value: 0.0.0.0:31210
-        - name: CORE_PEER_EVENTS_ADDRESS
-          value: 0.0.0.0:31211
-        - name: CORE_PEER_GOSSIP_BOOTSTRAP
-          value: blockchain-gov1peer1:31210
-        - name: CORE_PEER_GOSSIP_ORGLEADER
-          value: "false"
-        - name: CORE_PEER_GOSSIP_SKIPHANDSHAKE
-          value: "true"
-        - name: CORE_PEER_COMMITTER_ENABLED
-          value: "true"
-        - name: CORE_PEER_PROFILE_ENABLED
-          value: "true"
-        - name: CORE_VM_ENDPOINT
-          value: tcp://cadanac-docker:2375
-        - name: CORE_PEER_LOCALMSPID
-          value: Government1MSP
-        - name: CORE_PEER_MSPCONFIGPATH
-          value: /shared/crypto-config/peerOrganizations/government1.example.com/peers/peer0.government1.example.com/msp/
-        - name: FABRIC_LOGGING_SPEC
-          value: debug
-        - name: CORE_LOGGING_PEER
-          value: debug
-        - name: CORE_LOGGING_CAUTHDSL
-          value: debug
-        - name: CORE_LOGGING_GOSSIP
-          value: debug
-        - name: CORE_LOGGING_LEDGER
-          value: debug
-        - name: CORE_LOGGING_MSP
-          value: debug
-        - name: CORE_LOGGING_POLICIES
-          value: debug
-        - name: CORE_LOGGING_GRPC
-          value: debug
+          value: info
         - name: CORE_PEER_TLS_ENABLED
           value: "false"
         - name: CORE_LEDGER_STATE_STATEDATABASE

@@ -22,7 +22,7 @@ spec:
         command: ["sh", "-c", "peer chaincode instantiate -o blockchain-orderer:31010 -C channelpersonlocation -n personlocation -v ${CHAINCODE_VERSION} -c '{\"Args\":[\"Mach\",\"50\"]}' && peer chaincode instantiate -o blockchain-orderer:31010 -C channelhealthfinance -n healthfinance -v ${CHAINCODE_VERSION} -c '{\"Args\":[\"Mach\",\"50\"]}' && peer chaincode instantiate -o blockchain-orderer:31010 -C channelpersonhealth -n personhealth -v ${CHAINCODE_VERSION} -c '{\"Args\":[\"Mach\",\"50\"]}'"]
         env:
         - name: CHAINCODE_VERSION
-          value: "0.1"
+          value: "0.4"
         - name: FABRIC_CFG_PATH
           value: /etc/hyperledger/fabric
         - name: CORE_PEER_MSPCONFIGPATH

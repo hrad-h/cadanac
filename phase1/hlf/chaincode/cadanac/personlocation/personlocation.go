@@ -116,8 +116,7 @@ func (t *SimpleChaincode) createPersonLocation(stub shim.ChaincodeStubInterface,
 	}
 	//  Save index entry to state. Only the key personLocationID is needed, no need to store a duplicate copy of the personLocation.
 	//  Note - passing a 'nil' value will effectively delete the key from state, therefore we pass null character as value
-	value := []byte{0x00}
-	stub.PutState(personLocationStateNameIndexKey, value)
+	stub.PutState(personLocationStateNameIndexKey, personLocationJSONasBytes)
 
 	// ==== PersonLocation saved and indexed. Return success ====
 	fmt.Println("- end init personLocation")
@@ -166,12 +165,8 @@ func constructQueryResponseFromIterator(resultsIterator shim.StateQueryIteratorI
                 if bArrayMemberAlreadyWritten == true {
                         buffer.WriteString(",")
                 }
-                buffer.WriteString("{\"Key\":")
-                buffer.WriteString("\"")
-                buffer.WriteString(queryResponse.Key)
-                buffer.WriteString("\"")
-
-                buffer.WriteString(", \"Record\":")
+                buffer.WriteString("{")
+                buffer.WriteString("\"Record\":")
                 // Record is a JSON object, so we write as-is
                 buffer.WriteString(string(queryResponse.Value))
                 buffer.WriteString("}")

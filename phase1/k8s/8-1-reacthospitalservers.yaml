@@ -1,0 +1,109 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reacthospitals
+  namespace: cadanac-v0-1
+  labels:
+    run: reacthospitals
+spec:
+  type: NodePort
+  selector:
+    name: reacthospitals
+  ports:
+  - protocol: TCP
+    nodePort: 32000
+    port: 3000
+    name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: reacthospitals
+  namespace: cadanac-v0-1
+  name: reacthospitals
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: reacthospitals
+  template:
+    metadata:
+      labels:
+        name: reacthospitals
+    spec:
+      volumes:
+      - name: cadanacvolume
+        persistentVolumeClaim:
+          claimName: cadanac-pvc
+      - name: dockersocket
+        hostPath:
+          path: /var/run/docker.sock
+
+      containers:
+      - name: reacthospitals
+        image: hyperledger/fabric-tools:1.4.4
+        command: ["sh", "-c", "cd /shared/react/lib; npm install; cd /shared/react/hospitals; npm install;node ../lib/hlf/addToWallet; npm install -D webpack-cli; npm start; sleep 999999"]
+        ports:
+        - containerPort: 3000
+        env:
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /shared/crypto-config/peerOrganizations/government1.example.com/users/Admin@government1.example.com/msp
+        - name: CORE_PEER_LOCALMSPID
+          value: Government1MSP
+        - name: CORE_PEER_ADDRESS
+          value: blockchain-gov1peer1:31210
+        - name: CORE_PEER_ADDRESSAUTODETECT
+          value: "true"
+        - name: CORE_PEER_ID
+          value: cpc1peer1
+        - name: CORE_PEER_NETWORKID
+          value: nid1
+        - name: CORE_PEER_LISTENADDRESS
+          value: 0.0.0.0:30510
+        - name: CORE_PEER_EVENTS_ADDRESS
+          value: 0.0.0.0:30511
+        - name: CORE_PEER_GOSSIP_ORGLEADER
+          value: "false"
+        - name: CORE_PEER_GOSSIP_SKIPHANDSHAKE
+          value: "true"
+        - name: CORE_PEER_COMMITTER_ENABLED
+          value: "true"
+        - name: CORE_PEER_PROFILE_ENABLED
+          value: "true"
+        - name: CORE_VM_ENDPOINT
+          value: tcp://cadanac-docker:2375
+        - name: FABRIC_LOGGING_SPEC
+          value: info
+        - name: CORE_LOGGING_PEER
+          value: info
+        - name: CORE_LOGGING_CAUTHDSL
+          value: info
+        - name: CORE_LOGGING_GOSSIP
+          value: info
+        - name: CORE_LOGGING_LEDGER
+          value: info
+        - name: CORE_LOGGING_MSP
+          value: info
+        - name: CORE_LOGGING_POLICIES
+          value: info
+        - name: CORE_LOGGING_GRPC
+          value: info
+        - name: CORE_PEER_TLS_ENABLED
+          value: "false"
+        - name: CORE_LEDGER_STATE_STATEDATABASE
+          value: goleveldb
+        - name: FABRIC_CFG_PATH
+          value: /etc/hyperledger/fabric/
+        - name: ORDERER_URL
+          value: blockchain-orderer:31010
+        - name: GODEBUG
+          value: "netdns=go"
+        - name: CORE_VM_DOCKER_ATTACHSTDOUT
+          value: "true"
+        volumeMounts:
+        - mountPath: /shared
+          name: cadanacvolume
+        - mountPath: /host/var/run/docker.sock
+          name: dockersocket
