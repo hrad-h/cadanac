@@ -262,7 +262,7 @@ func (t *SimpleChaincode) updateLatitudeLongitude(stub shim.ChaincodeStubInterfa
         indexName := "personLocationState~personLocationID"
         personLocationStateNameIndexKey, err := stub.CreateCompositeKey(indexName, []string{"new", pkPersonLocationID })
         if err != nil {
-                return shim.Error("" + err.Error())
+                return shim.Error("Failed to create Composite Key" + err.Error())
         }
 
         //  Delete index entry to state.
