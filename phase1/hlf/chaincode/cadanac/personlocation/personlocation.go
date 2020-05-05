@@ -262,13 +262,13 @@ func (t *SimpleChaincode) updateLatitudeLongitude(stub shim.ChaincodeStubInterfa
         indexName := "personLocationState~personLocationID"
         personLocationStateNameIndexKey, err := stub.CreateCompositeKey(indexName, []string{"new", pkPersonLocationID })
         if err != nil {
-                return shim.Error("IS THIS REALLY AN ERROR?" + err.Error())
+                return shim.Error("" + err.Error())
         }
 
         //  Delete index entry to state.
         err = stub.DelState(personLocationStateNameIndexKey)
         if err != nil {
-                return shim.Error("IS THIS REALLY AN ERROR?" + "Failed to delete state:" + err.Error())
+                return shim.Error("Failed to delete state:" + err.Error())
         }
 
 	fmt.Println("- end transferPersonLocation (success)")
