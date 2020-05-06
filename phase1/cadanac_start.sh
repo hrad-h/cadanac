@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ -d "${PWD}/k8s" ]; then
-    KUBECONFIG_FOLDER=${PWD}/k8s
+if [ -d "${PWD}/kubernetes" ]; then
+    KUBECONFIG_FOLDER=${PWD}/kubernetes
 else
     echo "Configuration files are not found."
     exit
@@ -13,7 +13,7 @@ echo "Running: kubectl create -f ${KUBECONFIG_FOLDER}/0Namespace.yaml"
 kubectl create -f ${KUBECONFIG_FOLDER}/0-1-Namespace.yaml
 
 # Create Docker deployment
-if [ "$(cat k8s/4-2-peersDeployment.yaml | grep -c tcp://cadanac-docker:2375)" != "0" ]; then
+if [ "$(cat ${KUBECONFIG_FOLDER}/4-2-peersDeployment.yaml | grep -c tcp://cadanac-docker:2375)" != "0" ]; then
     echo "peersDeployment.yaml file was configured to use Docker in a container."
     echo "Creating Docker deployment"
 
@@ -79,7 +79,7 @@ echo -e "\nStarting to copy artifacts in persistent volume."
 #kubectl cp ./react $pod:/shared/
 sudo \rm -rf ~/cadanac_local_pv/react
 sudo cp -R ./react ~/cadanac_local_pv
-kubectl cp ./hlf $pod:/shared/artifacts
+kubectl cp ./blockchain $pod:/shared/artifacts
 
 echo "Waiting for 10 more seconds for copying artifacts to avoid any network delay"
 sleep 10

@@ -102,11 +102,11 @@ Google Cloud IAAS Definition
 
 Kubernetes IAAS Definition
 
-[Cadanac Technolgogy Architecture - Kubernetes IAAS](docs/2-k8s/README.md)
+[Cadanac Technolgogy Architecture - Kubernetes IAAS](docs/2-kubernetes/README.md)
 
 Hyperledger Fabric Definition
 
-[Cadanac Platform Architecture - Hyperledger Fabric PAAS](docs/3-hlf/README.md)
+[Cadanac Platform Architecture - Hyperledger Fabric PAAS](docs/3-blockchain/README.md)
 
 
 ## Cadanac DevOps

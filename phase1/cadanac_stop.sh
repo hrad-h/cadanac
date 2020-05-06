@@ -1,5 +1,5 @@
 
-KUBECONFIG_FOLDER=${PWD}/k8s
+KUBECONFIG_FOLDER=${PWD}/kubernetes
 
 kubectl delete -f ${KUBECONFIG_FOLDER}/9-1-nginxserver.yaml
 

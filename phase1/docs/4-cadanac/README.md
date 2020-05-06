@@ -445,8 +445,8 @@ Here are some ArchiMate Diagrams.
 
 Please see
 - [Google Cloud](../1-gcp/README.md)
-- [Kubernetes](../2-k8s/README.md)
-- [Hyperledger Fabric](../3-hlf/README.md)
+- [Kubernetes](../2-kubernetes/README.md)
+- [Hyperledger Fabric](../3-blockchain/README.md)
 
 ## Summary
 
