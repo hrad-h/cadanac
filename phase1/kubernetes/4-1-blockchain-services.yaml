@@ -57,6 +57,10 @@ spec:
     targetPort: 30511
     port: 30511
     name: events
+  - protocol: TCP
+    port: 5984
+    name: couchdb
+
 
 ---
 apiVersion: v1
@@ -81,6 +85,9 @@ spec:
     targetPort: 30611
     port: 30611
     name: events
+  - protocol: TCP
+    port: 5984
+    name: couchdb
 
 ---
 apiVersion: v1
@@ -105,6 +112,9 @@ spec:
     targetPort: 30711
     port: 30711
     name: events
+  - protocol: TCP
+    port: 5984
+    name: couchdb
 
 ---
 apiVersion: v1
@@ -129,6 +139,9 @@ spec:
     targetPort: 30811
     port: 30811
     name: events
+  - protocol: TCP
+    port: 5984
+    name: couchdb
 
 ---
 apiVersion: v1
@@ -153,6 +166,9 @@ spec:
     targetPort: 30911
     port: 30911
     name: events
+  - protocol: TCP
+    port: 5984
+    name: couchdb
 
 ---
 apiVersion: v1
@@ -177,6 +193,9 @@ spec:
     targetPort: 31311
     port: 31311
     name: events
+  - protocol: TCP
+    port: 5984
+    name: couchdb
 
 ---
 apiVersion: v1
@@ -201,6 +220,9 @@ spec:
     targetPort: 31111
     port: 31111
     name: events
+  - protocol: TCP
+    port: 5984
+    name: couchdb
 
 ---
 apiVersion: v1
@@ -225,3 +247,6 @@ spec:
     targetPort: 31211
     port: 31211
     name: events
+  - protocol: TCP
+    port: 5984
+    name: couchdb

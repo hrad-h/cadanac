@@ -94,6 +94,8 @@ while [ "${JOBSTATUS}" != "1/1" ]; do
         fi
     JOBSTATUS=$(kubectl get jobs |grep "copyartifacts" |awk '{print $2}')
 done
+pod=$(kubectl get pods --selector=job-name=copyartifacts --output=jsonpath={.items..metadata.name})
+kubectl delete po $pod
 echo "Copy artifacts job completed"
 
 
@@ -115,6 +117,8 @@ while [ "${JOBSTATUS}" != "1/1" ]; do
     # UTILSLEFT=$(kubectl get pods | grep utils | awk '{print $2}')
     JOBSTATUS=$(kubectl get jobs |grep utils|awk '{print $2}')
 done
+pod=$(kubectl get pods --selector=job-name=utils --output=jsonpath={.items..metadata.name})
+kubectl delete po $pod
 
 
 # Create services for all peers, ca, orderer
@@ -137,8 +141,8 @@ while [ "${NUMPENDING}" != "0" ]; do
     sleep 1
 done
 
-echo "Waiting for 15 seconds for peers and orderer to settle"
-sleep 15
+echo "Waiting for 45 seconds for peers and orderer to settle"
+sleep 45
 
 
 # Generate channel artifacts using configtx.yaml and then create channel
@@ -156,8 +160,11 @@ while [ "${JOBSTATUS}" != "1/1" ]; do
     fi
     JOBSTATUS=$(kubectl get jobs |grep createchannel |awk '{print $2}')
 done
+pod=$(kubectl get pods --selector=job-name=createchannel --output=jsonpath={.items..metadata.name})
+kubectl delete po $pod
 echo "Create Channel Completed Successfully"
 
+sleep 30
 
 # Join all peers on a channel
 echo -e "\nCreating joinchannel job"
@@ -174,7 +181,11 @@ while [ "${JOBSTATUS}" != "1/1" ]; do
     fi
     JOBSTATUS=$(kubectl get jobs |grep joinchannel |awk '{print $2}')
 done
+pod=$(kubectl get pods --selector=job-name=joinchannel --output=jsonpath={.items..metadata.name})
+kubectl delete po $pod
 echo "Join Channel Completed Successfully"
+
+sleep 30
 
 #exit
 # Install chaincode on each peer
@@ -192,8 +203,11 @@ while [ "${JOBSTATUS}" != "1/1" ]; do
     fi
     JOBSTATUS=$(kubectl get jobs |grep chaincodeinstall |awk '{print $2}')
 done
+pod=$(kubectl get pods --selector=job-name=chaincodeinstall --output=jsonpath={.items..metadata.name})
+kubectl delete po $pod
 echo "Chaincode Install Completed Successfully"
 
+sleep 30
 
 # Instantiate chaincode on channel
 echo -e "\nCreating chaincodeinstantiate job"
@@ -210,6 +224,8 @@ while [ "${JOBSTATUS}" != "1/1" ]; do
     fi
     JOBSTATUS=$(kubectl get jobs |grep chaincodeinstantiate |awk '{print $2}')
 done
+pod=$(kubectl get pods --selector=job-name=chaincodeinstantiate --output=jsonpath={.items..metadata.name})
+kubectl delete po $pod
 echo "Chaincode Instantiation Completed Successfully"
 
 # temporary - not needed for dev
@@ -228,26 +244,26 @@ echo "Chaincode Instantiation Completed Successfully"
 #done
 
 #delete completed jobs
-pod=$(kubectl get pods --selector=job-name=joinchannel --output=jsonpath={.items..metadata.name})
-kubectl delete po $pod
-pod=$(kubectl get pods --selector=job-name=utils --output=jsonpath={.items..metadata.name})
-kubectl delete po $pod
-pod=$(kubectl get pods --selector=job-name=copyartifacts --output=jsonpath={.items..metadata.name})
-kubectl delete po $pod
-pod=$(kubectl get pods --selector=job-name=chaincodeinstall --output=jsonpath={.items..metadata.name})
-kubectl delete po $pod
-pod=$(kubectl get pods --selector=job-name=chaincodeinstantiate --output=jsonpath={.items..metadata.name})
-kubectl delete po $pod
-pod=$(kubectl get pods --selector=job-name=createchannel --output=jsonpath={.items..metadata.name})
-kubectl delete po $pod
+#pod=$(kubectl get pods --selector=job-name=joinchannel --output=jsonpath={.items..metadata.name})
+#kubectl delete po $pod
+#pod=$(kubectl get pods --selector=job-name=utils --output=jsonpath={.items..metadata.name})
+#kubectl delete po $pod
+#pod=$(kubectl get pods --selector=job-name=copyartifacts --output=jsonpath={.items..metadata.name})
+#kubectl delete po $pod
+#pod=$(kubectl get pods --selector=job-name=chaincodeinstall --output=jsonpath={.items..metadata.name})
+#kubectl delete po $pod
+#pod=$(kubectl get pods --selector=job-name=chaincodeinstantiate --output=jsonpath={.items..metadata.name})
+#kubectl delete po $pod
+#pod=$(kubectl get pods --selector=job-name=createchannel --output=jsonpath={.items..metadata.name})
+#kubectl delete po $pod
 
 # Create reactservers using Kubernetes Deployments
 echo -e "\nCreating new Deployment to create reactservers in network"
 echo "Running: kubectl create -f ${KUBECONFIG_FOLDER}/8-1-reacthospitalservers.yaml"
 kubectl create -f ${KUBECONFIG_FOLDER}/8-1-reacthospitalservers.yaml
-sleep 300
+sleep 500
 kubectl create -f ${KUBECONFIG_FOLDER}/8-2-reactgeoservers.yaml
-sleep 300
+sleep 500
 kubectl create -f ${KUBECONFIG_FOLDER}/8-3-reactgovernmentservers.yaml
 
 echo "Checking if reactservers deployments are ready"
